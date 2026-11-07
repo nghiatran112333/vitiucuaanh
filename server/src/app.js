@@ -56,7 +56,12 @@ export function createApp(expressRuntime = express) {
   app.use('/api/orders', ordersRouter);
   app.use('/api', (_req, res) => res.status(404).json({ message: 'Không tìm thấy API này.' }));
 
-  if (process.env.NODE_ENV === 'production' && process.env.VERCEL !== '1') {
+  if (process.env.VERCEL === '1') {
+    const projectRoot = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
+    const publicDirectory = resolve(projectRoot, 'public');
+    app.use(expressRuntime.static(publicDirectory));
+    app.get('*', (_req, res) => res.sendFile(resolve(publicDirectory, 'index.html')));
+  } else if (process.env.NODE_ENV === 'production') {
     const projectRoot = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
     const clientDist = resolve(projectRoot, 'client', 'dist');
     app.use(expressRuntime.static(clientDist));
