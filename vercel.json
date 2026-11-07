@@ -1,0 +1,6 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "express",
+  "installCommand": "npm ci && npm --prefix client ci && npm --prefix server ci",
+  "buildCommand": "npm run build:vercel"
+}

@@ -63,21 +63,20 @@ Frontend thường mở tại `http://localhost:5173`; API chạy tại `http://
 
 Giỏ hàng và yêu thích vẫn được lưu trên trình duyệt. Chuyển khoản/ví điện tử chưa kết nối cổng thanh toán; địa chỉ chưa được lưu vào hồ sơ; khôi phục mật khẩu, vận chuyển và đánh giá thật chưa được tích hợp. Trước khi triển khai công khai, hãy dùng HTTPS và đặt `AUTH_SECRET` ổn định, đủ dài trong môi trường production.
 
-## Đưa website lên Render
+## Đưa bản demo lên Vercel
 
-Dự án có sẵn `render.yaml`. Render sẽ build React rồi dùng Express phục vụ cả giao diện và API trên cùng tên miền. Nhờ vậy cookie đăng nhập tiếp tục hoạt động cùng miền.
+Dự án có `vercel.json` để Vercel build giao diện React, phục vụ tệp tĩnh qua CDN và chạy Express cho API trên cùng tên miền. Cookie đăng nhập vì vậy vẫn cùng miền.
 
-1. Đưa dự án lên một **repo GitHub Private**. `.env` và các biến môi trường `server/.env.*` đã bị loại khỏi Git; không đưa chuỗi MongoDB hoặc khóa bí mật vào mã nguồn.
-2. Trong Render, chọn **New → Blueprint**, kết nối repo GitHub và chọn `render.yaml`.
-3. Khi Render hỏi `MONGODB_URI`, nhập chuỗi kết nối Atlas trong ô bí mật. Blueprint tự tạo `AUTH_SECRET`.
-4. Trong MongoDB Atlas, cho phép kết nối từ Render theo hướng dẫn IP access list của Atlas. Dùng tài khoản database riêng cho ứng dụng, không dùng tài khoản quản trị Atlas.
-5. Deploy xong, mở URL `onrender.com` do Render cấp. Endpoint `/api/health` cho biết API đang chạy và MongoDB có kết nối hay không.
+1. Trong Vercel, chọn **Add New → Project**, import repo GitHub `nghiatran112333/vitiucuaanh` và giữ Root Directory là thư mục repo.
+2. Thêm hai biến môi trường cho Production (và Preview nếu muốn): `MONGODB_URI` lấy từ Atlas, `AUTH_SECRET` là chuỗi ngẫu nhiên dài. Không commit các giá trị này vào Git.
+3. Để Vercel dùng thiết lập trong `vercel.json`, build và deploy nhánh `main`.
+4. Mở URL `.vercel.app` được cấp. `/api/health` hiển thị trạng thái API và kết nối MongoDB.
 
-Blueprint hiện đặt một máy chủ `0.5c-512mb` (giá Render đang niêm yết là **7 USD/tháng**, chưa gồm phí workspace, băng thông vượt mức hoặc thuế). Đây là điểm bắt đầu luôn hoạt động, không phải cấu hình tự mở rộng. Muốn tự tăng số máy khi CPU/RAM tăng, Render yêu cầu workspace Pro **25 USD/tháng**, cộng chi phí từng máy chủ. Khi cần, có thể đặt autoscale từ 1 đến 3 máy và theo dõi hóa đơn trước khi tăng giới hạn.
+Gói Vercel Hobby miễn phí phù hợp cho bản demo cá nhân/phi thương mại; khi Vịtiu bắt đầu bán hàng thật, hãy nâng lên Pro trước khi nhận đơn.
 
-API giới hạn kích thước JSON, giới hạn tốc độ yêu cầu theo IP, và giữ MongoDB pool tối đa 20 kết nối trên mỗi máy chủ. Bộ giới hạn hiện lưu trong bộ nhớ của từng máy; nó giúp chặn tải bất thường cơ bản, còn bảo vệ ở quy mô lớn cần thêm CDN/WAF hoặc bộ giới hạn dùng chung. Không có cấu hình hosting nào bảo đảm website không bao giờ gián đoạn; cần theo dõi log, cảnh báo và tình trạng Atlas sau khi deploy.
+API giới hạn kích thước JSON, giới hạn tốc độ yêu cầu theo IP và dùng MongoDB pool nhỏ hơn trên Vercel để giảm số kết nối đồng thời. Bộ giới hạn tốc độ lưu trong bộ nhớ từng instance; nó giúp hạn chế lạm dụng cơ bản nhưng không phải bộ giới hạn dùng chung toàn hệ thống.
 
-**Lưu ý trước khi nhận đơn thật:** tài liệu hiện mô tả một số chức năng vẫn ở chế độ demo. Hãy kiểm tra thanh toán, bảo mật dữ liệu và quy trình sao lưu Atlas trước khi bán hàng thực tế.
+**Lưu ý:** Vercel Hobby chỉ dành cho dự án phi thương mại theo điều khoản của Vercel. Một số chức năng vẫn đang ở chế độ demo; trước khi bán hàng thật, hãy nâng gói, kiểm tra thanh toán, bảo mật dữ liệu và quy trình sao lưu Atlas.
 
 ## Cấu trúc chính
 
